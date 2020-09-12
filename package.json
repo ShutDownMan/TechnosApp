@@ -1,0 +1,33 @@
+{
+  "name": "technosapp",
+  "version": "0.0.1",
+  "description": "Electron app for online class plataform",
+  "main": "index.js",
+  "scripts": {
+    "start": "electron .",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ShutDownMan/TechnosApp.git"
+  },
+  "keywords": [
+    "Technos",
+    "Evolua"
+  ],
+  "author": "Jedson Gabriel",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/ShutDownMan/TechnosApp/issues"
+  },
+  "homepage": "https://github.com/ShutDownMan/TechnosApp#readme",
+  "devDependencies": {
+    "electron": "^11.0.0-beta.6"
+  },
+  "dependencies": {
+    "electron-json-storage": "^4.2.0",
+    "is-port-reachable": "^3.0.0",
+    "network-list": "^1.1.5",
+    "socket.io": "^2.3.0"
+  }
+}
