@@ -366,13 +366,13 @@ const main = () => {
 	app.commandLine.appendSwitch('ignore-certificate-errors', 'true');
 	app.commandLine.appendSwitch('allow-displaying-insecure-content', 'true');
 	setupflashPlugin();
-	/*
+
+	setDnsServers();
+
+	setInterval(() => {
 		setDnsServers();
-	
-		setInterval(() => {
-			setDnsServers();
-		}, 5 * 60 * 1000);
-	*/
+	}, 5 * 60 * 1000);
+
 
 	const gotTheLock = app.requestSingleInstanceLock()
 
