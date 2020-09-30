@@ -29,6 +29,7 @@ const createWindow = () => {
 	win = new BrowserWindow({
 		center: true,
 		resizable: true,
+		kiosk: true,
 		webPreferences: {
 			allowRunningInsecureContent: true,
 			nodeIntegration: false,
