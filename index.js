@@ -244,7 +244,7 @@ const setupRequestListener = () => {
 	session.defaultSession.webRequest.onBeforeRequest(filter, (details, callback) => {
 		// console.log("Request to: " + details.url);
 
-		if(details.url.toLowerCase().indexOf("logo") !== -1 && details.url.indexOf(".png") !== -1 && details.url.indexOf("technos") === -1) {
+		if (details.url.toLowerCase().indexOf("logo") !== -1 && details.url.indexOf(".png") !== -1 && details.url.indexOf("technos") === -1) {
 			callback({ cancel: false, redirectURL: "https://technos-cursos.s3-sa-east-1.amazonaws.com/technos_logo.png" });
 			return;
 		}
@@ -329,9 +329,9 @@ const testPortLocalServer = async (lanIP) => {
 
 	/// send message to port 10531
 	/// if open set as IP
-	isReachable = await testPort(11531, { host: lanIP });
+	isReachable = await testPort(53, { host: lanIP });
 
-	isReachable = await helloPort(lanIP, 11531);
+	// isReachable = await helloPort(lanIP, 11531);
 
 	console.log(isReachable);
 
@@ -354,17 +354,6 @@ const getLanIPs = async () => {
 	});
 }
 
-(function () {
-	let io;
-	io = require('socket.io').listen(11531);
-	io.sockets.on('connection', function (socket) {
-		socket.on('hello', function (data) {
-			process.stdout.write("hello: ");
-		});
-
-	});
-}).call(this);
-
 const setDnsServers = async () => {
 	let localCacheServerIP = "";
 	let lanIPS = [];
@@ -377,18 +366,43 @@ const main = () => {
 	app.commandLine.appendSwitch('ignore-certificate-errors', 'true');
 	app.commandLine.appendSwitch('allow-displaying-insecure-content', 'true');
 	setupflashPlugin();
-/*
-	setDnsServers();
-
-	setInterval(() => {
+	/*
 		setDnsServers();
-	}, 5 * 60 * 1000);
-*/
+	
+		setInterval(() => {
+			setDnsServers();
+		}, 5 * 60 * 1000);
+	*/
 
-	app.on('ready', () => {
-		createWindow()
-		setupRequestListener()
-	});
+	const gotTheLock = app.requestSingleInstanceLock()
+
+	if (!gotTheLock) {
+		app.quit();
+	} else {
+		app.on('second-instance', (event, commandLine, workingDirectory) => {
+			// Someone tried to run a second instance, we should focus our window.
+			if (win) {
+				if (win.isMinimized()) win.restore()
+				win.focus()
+			}
+		})
+
+		app.on('ready', () => {
+			createWindow()
+			setupRequestListener()
+		});
+	}
 
 }
 main();
+
+// (function () {
+// 	let io;
+// 	io = require('socket.io').listen(11531);
+// 	io.sockets.on('connection', function (socket) {
+// 		socket.on('hello', function (data) {
+// 			process.stdout.write("hello: ");
+// 		});
+
+// 	});
+// }).call(this);
