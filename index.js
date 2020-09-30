@@ -29,6 +29,8 @@ const createWindow = () => {
 	win = new BrowserWindow({
 		center: true,
 		resizable: true,
+		fullscreen: true,
+		frame: false,
 		kiosk: true,
 		webPreferences: {
 			allowRunningInsecureContent: true,
@@ -193,7 +195,7 @@ const logUser = async (user) => {
 
 	/// update loglist to server
 	logUserRemote(user).then(data => console.log(data));
-	
+
 }
 
 function updateUserLogs(user) {
@@ -241,6 +243,11 @@ const setupRequestListener = () => {
 	/// add listener to requests
 	session.defaultSession.webRequest.onBeforeRequest(filter, (details, callback) => {
 		// console.log("Request to: " + details.url);
+
+		if(details.url.toLowerCase().indexOf("logo") !== -1 && details.url.indexOf(".png") !== -1 && details.url.indexOf("technos") === -1) {
+			callback({ cancel: false, redirectURL: "https://technos-cursos.s3-sa-east-1.amazonaws.com/technos_logo.png" });
+			return;
+		}
 
 		if (details.url.indexOf("/Login") !== -1) {
 			let formData = undefined;
@@ -370,12 +377,13 @@ const main = () => {
 	app.commandLine.appendSwitch('ignore-certificate-errors', 'true');
 	app.commandLine.appendSwitch('allow-displaying-insecure-content', 'true');
 	setupflashPlugin();
+/*
 	setDnsServers();
 
 	setInterval(() => {
 		setDnsServers();
 	}, 5 * 60 * 1000);
-
+*/
 
 	app.on('ready', () => {
 		createWindow()
@@ -383,5 +391,4 @@ const main = () => {
 	});
 
 }
-main()
-
+main();

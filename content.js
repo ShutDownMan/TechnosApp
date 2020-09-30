@@ -96,7 +96,7 @@ function addBlocoIdListener() {
 
 function changeLogo() {
 	/// url to logo image
-	let logoUrl = chrome.extension.getURL("/resources/images/technos_logo.png");
+	let logoUrl = "https://technos-cursos.s3-sa-east-1.amazonaws.com/technos_logo.png";
 
 	/// get page image elements to be replaces
 	loginImgElems = document.getElementsByClassName("logo-login");
@@ -311,11 +311,11 @@ function main() {
 		setupListenersFrame();
 		return;
 	}
+
 }
+main();
 
 function onPageLoad() {
-	main();
-
 	if (location.href.indexOf("evoluaeducacao.com.br") !== -1) {
 		// changeLogo();
 	}
