@@ -6,6 +6,9 @@ const testPort = require('is-port-reachable');
 const ipcMain = require('electron').ipcMain;
 const storage = require('electron-json-storage');
 const process = require('process');
+const socket = require('socket.io');
+const querystring = require('querystring');
+const fetch = require('node-fetch');
 
 const urls = [
 	"https://app.evoluaeducacao.com.br/Login"
@@ -18,6 +21,8 @@ var currentUser = undefined;
 var userLogList = [];
 
 var iframeId = -1;
+
+var currentUserId = undefined;
 
 const createWindow = () => {
 
@@ -76,8 +81,42 @@ const setupListeners = () => {
 		// win.webContents.send('bloco-id-update', "test");
 	});
 
-	win.webContents.on('set-iframe-id', (event, iframeId) => {
-		iframeId = iframeId;
+	ipcMain.on('user-login', (event, user) => {
+		if (user === undefined || Object.keys(user).length === 0 && user.constructor === Object) {
+			return false;
+		}
+
+		/// update current
+		currentUser = user;
+		currentUser.b = "1";
+
+		let foundLog = false;
+		/// find it in log list
+		for (var i = userLogList.length - 1; i >= 0; i--) {
+			if (userLogList[i].t === currentUser.t
+				&& userLogList[i].c === currentUser.c
+				&& userLogList[i].d === currentUser.d
+				&& userLogList[i].a === currentUser.a) {
+				foundLog = true;
+
+				/// if found blocoId is greater than current blocoId
+				if (Number(userLogList[i].b) >= Number(currentUser.b)) {
+					currentUser.b = String(userLogList[i].b);
+				}
+			}
+		}
+
+		if (foundLog === false) {
+			logUser(currentUser);
+		}
+
+		return true;
+	});
+
+	ipcMain.on('set-iframe-id', (event) => {
+		console.log("Setting iframeId");
+		iframeId = event.frameId;
+		console.log("iframeId = " + iframeId);
 	});
 
 	ipcMain.on('set-current-user', (event, user) => {
@@ -92,11 +131,10 @@ const setupListeners = () => {
 		console.log(currentUser);
 	});
 
-	ipcMain.on('get-current-user-iframe', (event) => {
-		console.log("get-current-user-iframe");
-		console.log(event);
+	ipcMain.on('startup-get-user', (event) => {
+		console.log("startup-get-user");
 
-		win.webContents.sendToFrame(iframeId, 'set-current-user-iframe', currentUser);
+		win.webContents.sendToFrame(event.frameId, 'startup-scripts-iframe', currentUser);
 		console.log(currentUser);
 	});
 }
@@ -111,23 +149,35 @@ const updateUser = (user) => {
 			&& userLogList[i].c === user.c
 			&& userLogList[i].d === user.d
 			&& userLogList[i].a === user.a) {
-			foundLog = true;
 
-			/// if found blocoId is greater than current blocoId
-			if (Number(userLogList[i].b) >= Number(user.b)) {
-				user.b = String(userLogList[i].b);
-			}
+			userLogList.splice(i, 1);
 		}
 	}
 
-	if (foundLog === false) {
-		logUser(user);
-	}
+	logUser(user);
 
 	return user;
 }
 
-function logUser(user) {
+const logUserRemote = async (user) => {
+	let url = "https://p4f4yiv2l0.execute-api.sa-east-1.amazonaws.com/prod/aluno";
+	let data = {
+		UserID: currentUserId.toString(),
+		UserLog: user
+	}
+	const response = await fetch(url, {
+		method: 'POST',
+		headers: {
+			'Content-Type': 'application/json'
+			// 'Content-Type': 'application/x-www-form-urlencoded',
+		},
+		body: JSON.stringify(data) // body data type must match "Content-Type" header
+	});
+
+	return response.json();
+}
+
+const logUser = async (user) => {
 	console.log("User has been logged!");
 	console.log(user);
 
@@ -135,9 +185,14 @@ function logUser(user) {
 
 	userLogList.push(user);
 
+	/// update loglist locally
 	storage.set('UserLogs', { list: userLogList }, (error) => {
 		console.log("userLogList saved");
 	});
+
+	/// update loglist to server
+	logUserRemote(user).then(data => console.log(data));
+	
 }
 
 function updateUserLogs(user) {
@@ -160,6 +215,22 @@ function emptyUserlogList() {
 	});
 }
 
+const updateLocalLogs = (userLogs) => {
+	/*
+		data.forEach((userLog) => {
+			
+		});
+	*/
+	userLogList = userLogs;
+}
+
+const loadUserLogs = async () => {
+	fetch('https://p4f4yiv2l0.execute-api.sa-east-1.amazonaws.com/prod/aluno?userid=' + currentUserId)
+		.then(response => response.json())
+		.then(data => updateLocalLogs(data.UserLogs))
+		.catch(err => console.log(err.toString()));
+};
+
 const setupRequestListener = () => {
 	// Modify the requesst for all requests to the following urls.
 	const filter = {
@@ -170,29 +241,51 @@ const setupRequestListener = () => {
 	session.defaultSession.webRequest.onBeforeRequest(filter, (details, callback) => {
 		// console.log("Request to: " + details.url);
 
-		if (details.url.indexOf("aulainterativa") === -1) {
+		if (details.url.indexOf("/Login") !== -1) {
+			let formData = undefined;
+			console.log("Request to: " + details.url);
+
+			console.log(details.uploadData);
+
+			if (details.uploadData !== undefined && details.uploadData.length >= 1) {
+				formData = querystring.parse(details.uploadData[0].bytes.toString());
+
+				console.log("formData:");
+				console.log(formData);
+
+				currentUserId = formData.Login;
+
+				loadUserLogs();
+			}
+
+			console.log("currentUserId = " + currentUserId);
+
+
 			callback({ cancel: false });
 			return;
 		}
 
-		/// check if request is for a flash file
-		if (details.url.indexOf(".swf") !== -1) {
-			/// separate file name from url
-			let flashFileName = details.url.substr(details.url.lastIndexOf('/') + 1);
-			console.log(flashFileName);
+		if (details.url.indexOf("aulainterativa") !== -1) {
+			/// check if request is for a flash file
+			if (details.url.indexOf(".swf") !== -1) {
+				/// separate file name from url
+				let flashFileName = details.url.substr(details.url.lastIndexOf('/') + 1);
+				console.log(flashFileName);
 
-			win.webContents.sendToFrame(iframeId, 'bloco-id-update', flashFileName);
-		}
+				win.webContents.sendToFrame(iframeId, 'bloco-id-update', flashFileName);
+			}
 
-		if (details.url.indexOf("https://") !== -1) {
-			console.log("Downgraded: " + details.url);
-			callback({ cancel: false, redirectURL: details.url.replace("https://", "http://") });
-			return;
+			if (details.url.indexOf("https://") !== -1) {
+				console.log("Downgraded: " + details.url);
+				callback({ cancel: false, redirectURL: details.url.replace("https://", "http://") });
+				return;
+			}
 		}
 
 		callback({ cancel: false });
 		return;
 	});
+
 }
 
 // Request to: https://1482274424.rsc.cdn77.org/cxm2/Aula02-SI-263b347e-7416-4913-83e9-3da6e5a06550/aulainterativa/index.html
@@ -218,11 +311,19 @@ const updateDnsServers = () => {
 	console.log(localServers.concat(['8.8.8.8']));
 }
 
+const helloPort = async (lanAddress, portNum) => {
+	return new Promise((reponse) => {
+		//socket.connect(lanAddress + ":" + String(portNum));
+	});
+}
+
 const testPortLocalServer = async (lanIP) => {
 
 	/// send message to port 10531
 	/// if open set as IP
 	isReachable = await testPort(11531, { host: lanIP });
+
+	isReachable = await helloPort(lanIP, 11531);
 
 	console.log(isReachable);
 
@@ -246,8 +347,8 @@ const getLanIPs = async () => {
 }
 
 (function () {
-	var io;
-	io = require('socket.io').listen(10531);
+	let io;
+	io = require('socket.io').listen(11531);
 	io.sockets.on('connection', function (socket) {
 		socket.on('hello', function (data) {
 			process.stdout.write("hello: ");
@@ -268,10 +369,10 @@ const main = () => {
 	app.commandLine.appendSwitch('ignore-certificate-errors', 'true');
 	app.commandLine.appendSwitch('allow-displaying-insecure-content', 'true');
 	setupflashPlugin();
-	// setDnsServers();
+	setDnsServers();
 
 	setInterval(() => {
-		// setDnsServers();
+		setDnsServers();
 	}, 5 * 60 * 1000);
 
 

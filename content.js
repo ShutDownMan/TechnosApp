@@ -90,6 +90,7 @@ function addBlocoIdListener() {
 			}
 		}
 
+		console.log("Bloco atual = " + currentBlocoId);
 	});
 }
 
@@ -123,13 +124,7 @@ function runAulaScript() {
 }
 
 function getUserInfo() {
-	ipcRenderer.send('get-current-user-iframe');
-
-	if (currentUser === undefined) {
-		console.log("ERROR: currentUser is undefined!");
-	}
-
-	//console.log(currentUser);
+	ipcRenderer.send('startup-get-user');
 }
 
 function getScriptFromPage() {
@@ -200,9 +195,7 @@ async function updateDadosAula() {
 		currentBlocoId = 0;
 		currentUser.b = String(currentBlocoId);
 		/// atualiza nos logs
-		chrome.runtime.sendMessage({ messageType: "update_userlogs", currentUser: currentUser },
-			(r) => { console.log("update_userlogs"); }
-		);
+		ipcRenderer.send('set-current-user', currentUser);
 	}
 
 	/// passa pelos blocos liberando
@@ -263,13 +256,13 @@ function runUserLoginScript() {
 			d: localStorage.getItem("id-disciplina-atual"),
 			u: link.match(/(?:IdUnidade=)(\d+)/)[1],
 			a: link.match(/(?:IdAtividade=)(\d+)/)[1],
-			b: "5"
+			b: "0"
 		}
 
 		/// avisa background script do usuario
 		// chrome.runtime.sendMessage({ messageType: "user_login", currentUser: currentUser },
 		//     (r) => { console.log("user_login"); });
-		ipcRenderer.send('set-current-user', currentUser);
+		ipcRenderer.send('user-login', currentUser);
 	});
 
 	updateFechaModal();
@@ -284,9 +277,10 @@ function setupListenersMain() {
 	});
 }
 
-function setupListenersFrame(){
-	ipcRenderer.on('set-current-user-iframe', (event, user) => {
-		console.log('set-current-user-iframe');
+function setupListenersFrame() {
+	console.log("Setting up listener frame");
+	ipcRenderer.on('startup-scripts-iframe', (event, user) => {
+		console.log('startup-scripts-iframe');
 		currentUser = user;
 		currentBlocoId = Number(user.b);
 		console.log(currentUser);
@@ -309,15 +303,18 @@ function main() {
 	setupListenersMain();
 
 	if (!process.isMainFrame && location.href.indexOf("aulainterativa") !== -1) {
-		ipcRenderer.send('set-iframe-id', require('electron').webFrame.routingId);
+		iframeId = require('electron').webFrame.routingId;
+		console.log("IframeId = " + iframeId);
+		ipcRenderer.send('set-iframe-id');
+
 		addBlocoIdListener();
 		setupListenersFrame();
 		return;
 	}
 }
-main();
 
 function onPageLoad() {
+	main();
 
 	if (location.href.indexOf("evoluaeducacao.com.br") !== -1) {
 		// changeLogo();
