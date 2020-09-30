@@ -32,6 +32,7 @@ const createWindow = () => {
 		fullscreen: true,
 		frame: false,
 		kiosk: true,
+		icon: path.join(__dirname, "resources/images/icon128.png"),
 		webPreferences: {
 			allowRunningInsecureContent: true,
 			nodeIntegration: false,
