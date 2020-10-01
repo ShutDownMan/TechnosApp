@@ -94,36 +94,8 @@ function addBlocoIdListener() {
 	});
 }
 
-function changeLogo() {
-	/// url to logo image
-	let logoUrl = "https://technos-cursos.s3-sa-east-1.amazonaws.com/technos_logo.png";
-
-	/// get page image elements to be replaces
-	loginImgElems = document.getElementsByClassName("logo-login");
-	logoNavImgElems = document.getElementsByClassName("logo-nav");
-
-	/// replace them if found
-
-	if (loginImgElems.length) {
-		loginImgElems[0].src = logoUrl;
-	}
-
-	if (logoNavImgElems.length) {
-		logoNavImgElems[0].src = logoUrl;
-	}
-}
-
-function runAulaScript() {
-
-	/// chama info do usuario atual (async)
-	getUserInfo();
-
-
-	// wait for currentUser to be defined
-	// waitUserData();
-}
-
 function getUserInfo() {
+	console.log("Getting user info");
 	ipcRenderer.send('startup-get-user');
 }
 
@@ -146,8 +118,8 @@ function getScriptFromPage() {
 		}
 	}
 
-	// console.log("pageScript");
-	// console.log(pageScript);
+	console.log("pageScript");
+	console.log(pageScript);
 }
 
 function childrenToArray(tagElem) {
@@ -240,8 +212,10 @@ function updateFechaModal() {
 }
 
 function runUserLoginScript() {
+
 	/// coloca uma funcao no botao de executar atividade
 	$(document).on("click", ".atividade-link, .btn-atividade-link", function () {
+		console.log("Atividade CLICK.");
 		/// pega as inforamoes da aula
 		var link = $(this).attr("data-link");
 
@@ -279,17 +253,26 @@ function setupListenersMain() {
 
 function setupListenersFrame() {
 	console.log("Setting up listener frame");
-	ipcRenderer.on('startup-scripts-iframe', (event, user) => {
+	ipcRenderer.on('startup-scripts-iframe', (event, data) => {
 		console.log('startup-scripts-iframe');
-		currentUser = user;
-		currentBlocoId = Number(user.b);
-		console.log(currentUser);
+		let user = data.user
+		let reloadFix = data.reloadFix;
 
-		console.log("getScriptFromPage in Iframe");
-		/// pega a função o código da página atual
-		getScriptFromPage();
+		if (!reloadFix) {
+			location.reload();
+		}
 
-		updateDadosAula();
+		if (user !== undefined) {
+			currentUser = user;
+			currentBlocoId = Number(user.b);
+			console.log(currentUser);
+
+			console.log("getScriptFromPage in Iframe");
+			/// pega a função o código da página atual
+			getScriptFromPage();
+
+			updateDadosAula();
+		}
 	});
 }
 
@@ -300,35 +283,29 @@ function main() {
 	console.log("isMainFrame");
 	console.log(process.isMainFrame);
 
-	setupListenersMain();
 
 	if (!process.isMainFrame && location.href.indexOf("aulainterativa") !== -1) {
 		iframeId = require('electron').webFrame.routingId;
 		console.log("IframeId = " + iframeId);
 		ipcRenderer.send('set-iframe-id');
-
-		addBlocoIdListener();
-		setupListenersFrame();
-		return;
 	}
-
 }
 main();
 
-function onPageLoad() {
-	if (location.href.indexOf("evoluaeducacao.com.br") !== -1) {
-		// changeLogo();
-	}
+addBlocoIdListener();
+setupListenersFrame();
 
-	if (!process.isMainFrame && location.href.indexOf("aulainterativa") !== -1) {
-		runAulaScript();
-		return;
-	}
+function onPageLoad() {
+	setupListenersMain();
 
 	if (location.href.indexOf("evoluaeducacao.com.br/Cursos/") !== -1) {
 		runUserLoginScript();
-		return;
+	}
+
+	if (!process.isMainFrame && location.href.indexOf("aulainterativa") !== -1) {
+
+		getUserInfo();
 	}
 }
-
-window.onload = onPageLoad;
+window.addEventListener('load', onPageLoad)
+// document.onload = onPageLoad;

@@ -131,14 +131,17 @@ const setupListeners = () => {
 	ipcMain.on('get-current-user', (event) => {
 		console.log("get-current-user");
 
-		win.webContents.send('set-current-user', currentUser);
+		win.webContents.sendToFrame(event.frameId, 'set-current-user', currentUser);
 		console.log(currentUser);
 	});
 
+	var reloadFix = false;
 	ipcMain.on('startup-get-user', (event) => {
 		console.log("startup-get-user");
 
-		win.webContents.sendToFrame(event.frameId, 'startup-scripts-iframe', currentUser);
+		win.webContents.sendToFrame(iframeId, 'startup-scripts-iframe', {user: currentUser, reloadFix: reloadFix});
+
+		reloadFix = true;
 		console.log(currentUser);
 	});
 }
@@ -275,6 +278,12 @@ const setupRequestListener = () => {
 		}
 
 		if (details.url.indexOf("aulainterativa") !== -1) {
+			if (details.url.indexOf("https://") !== -1) {
+				console.log("Downgraded: " + details.url);
+				callback({ cancel: false, redirectURL: details.url.replace("https://", "http://") });
+				return;
+			}
+
 			/// check if request is for a flash file
 			if (details.url.indexOf(".swf") !== -1) {
 				/// separate file name from url
@@ -282,12 +291,6 @@ const setupRequestListener = () => {
 				console.log(flashFileName);
 
 				win.webContents.sendToFrame(iframeId, 'bloco-id-update', flashFileName);
-			}
-
-			if (details.url.indexOf("https://") !== -1) {
-				console.log("Downgraded: " + details.url);
-				callback({ cancel: false, redirectURL: details.url.replace("https://", "http://") });
-				return;
 			}
 		}
 
