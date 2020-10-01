@@ -254,7 +254,14 @@ const setupRequestListener = () => {
 			return;
 		}
 
+
 		if (details.url.indexOf("/Login") !== -1) {
+/*
+			if (details.url.indexOf("/Logout") !== -1) {
+				console.log("Loggin out");
+				setTimeout(() => { app.quit(); }, 100);
+			}
+*/
 			let formData = undefined;
 			console.log("Request to: " + details.url);
 
@@ -288,7 +295,7 @@ const setupRequestListener = () => {
 			/// check if request is for a flash file
 			if (details.url.indexOf(".swf") !== -1) {
 				/// separate file name from url
-				let flashFileName = details.url.substr(details.url.lastIndexOf('/') + 1);
+				let flashFileName = details.url.substr(details.url.lastIndexOf('/') + 1).toUpperCase().trim();
 				console.log(flashFileName);
 
 				win.webContents.sendToFrame(iframeId, 'bloco-id-update', flashFileName);

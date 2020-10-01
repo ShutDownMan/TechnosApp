@@ -51,7 +51,8 @@ function populateBlocosDict() {
 
 	/// passa pelo arquivo xml e cria um dicionario com os nomes de aquivos/ids
 	$(currentAulaXML).find("bloco").each(function (index) {
-		blocosDict[$(this).attr("filme")] = $(this).attr("id");
+		blocosDict[$(this).attr("filme").toUpperCase()] = $(this).attr("id");
+//		console.log("blocosDict[" + $(this).attr("filme") + "] = " + $(this).attr("id"));
 
 		isFinalBloco($(this), $(this).attr("id"));
 	});
@@ -76,9 +77,10 @@ function addBlocoIdListener() {
 
 		/// pega id do bloco a partir do nome
 		let fileId = blocosDict[store];
+		console.log("fileId = ", fileId);
 
 		/// se id do bloco for maior que id atual
-		if (fileId > currentBlocoId) {
+		if (fileId !== undefined && Number(fileId) > Number(currentBlocoId)) {
 			/// seta o id atual para id do arquivo
 			currentBlocoId = fileId;
 
@@ -175,7 +177,7 @@ async function updateDadosAula() {
 		//console.log($(this).find("id").text());
 
 		/// se o bloco atual tiver id menor que o bloco do usuario
-		if (Number($(this).find("id").text()) < currentBlocoId) {
+		if (Number($(this).find("id").text()) < Number(currentBlocoId)) {
 			/// libera bloco
 			$(this).find("data").text("1");
 			$(this).find("hora").text("1");
