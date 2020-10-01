@@ -25,40 +25,41 @@ var iframeId = -1;
 var currentUserId = undefined;
 
 const createWindow = () => {
+	setTimeout(function () {
+		win = new BrowserWindow({
+			center: true,
+			resizable: true,
+			fullscreen: true,
+			frame: false,
+			kiosk: true,
+			icon: path.join(__dirname, "resources/images/icon128.png"),
+			webPreferences: {
+				allowRunningInsecureContent: true,
+				nodeIntegration: false,
+				nodeIntegrationInSubFrames: true,
+				show: false,
+				plugins: true,
+				preload: path.join(__dirname, "content.js")
+			}
+		});
+		win.maximize();
+		// win.webContents.openDevTools();
 
-	win = new BrowserWindow({
-		center: true,
-		resizable: true,
-		fullscreen: true,
-		frame: false,
-		kiosk: true,
-		icon: path.join(__dirname, "resources/images/icon128.png"),
-		webPreferences: {
-			allowRunningInsecureContent: true,
-			nodeIntegration: false,
-			nodeIntegrationInSubFrames: true,
-			show: false,
-			plugins: true,
-			preload: path.join(__dirname, "content.js")
-		}
-	});
-	win.maximize();
-	// win.webContents.openDevTools();
+		console.log(urls[0]);
+		win.loadURL(urls[0]);
 
-	console.log(urls[0]);
-	win.loadURL(urls[0]);
+		win.once('ready-to-show', () => {
+			win.show()
+		});
 
-	win.once('ready-to-show', () => {
-		win.show()
-	});
+		win.on('closed', () => {
+			win = null;
+		});
 
-	win.on('closed', () => {
-		win = null;
-	});
+		setupListeners();
+	}, 0);
 
 	getUserLogListFromLocalStorage();
-
-	setupListeners();
 }
 
 const getUserLogListFromLocalStorage = () => {
@@ -139,7 +140,7 @@ const setupListeners = () => {
 	ipcMain.on('startup-get-user', (event) => {
 		console.log("startup-get-user");
 
-		win.webContents.sendToFrame(iframeId, 'startup-scripts-iframe', {user: currentUser, reloadFix: reloadFix});
+		win.webContents.sendToFrame(iframeId, 'startup-scripts-iframe', { user: currentUser, reloadFix: reloadFix });
 
 		reloadFix = true;
 		console.log(currentUser);
