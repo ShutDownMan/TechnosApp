@@ -363,7 +363,9 @@ const getLanIPs = async () => {
 	netList.scanEach({}, async (err, obj) => {
 		if (obj.alive === true) {
 			console.log(obj);
-			testPortLocalServer(obj.ip);
+			if(obj.hostname === "technos-cache") {
+				testPortLocalServer(obj.ip);
+			}
 		}
 	});
 }
