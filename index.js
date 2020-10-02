@@ -379,11 +379,10 @@ const setDnsServers = async () => {
 }
 
 const autoUpdateSetup = () => {
-	/// when update downloaded, ask user to quit and install
 	autoUpdater.on('update-downloaded', (event, releaseNotes, releaseName) => {
 		const dialogOpts = {
 			type: 'info',
-			buttons: ['Restart', 'Later'],
+			buttons: ['Reiniciar', 'Deixar Para Depois'],
 			title: 'Application Update',
 			message: process.platform === 'win32' ? releaseNotes : releaseName,
 			detail: 'Uma nova versão está disponível. Reinicie a aplicação para atualizar.'
@@ -394,7 +393,6 @@ const autoUpdateSetup = () => {
 		});
 	});
 
-	/// when error, print message
 	autoUpdater.on('error', message => {
 		console.error('There was a problem updating the application');
 		console.error(message);
@@ -402,7 +400,6 @@ const autoUpdateSetup = () => {
 
 	autoUpdater.checkForUpdates();
 
-	/// check every minute for updates
 	setInterval(() => {
 		autoUpdater.checkForUpdates();
 	}, 60000)
