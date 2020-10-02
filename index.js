@@ -378,6 +378,7 @@ const setDnsServers = async () => {
 	lanIPS = getLanIPs();
 }
 
+var willUpdate = false;
 const autoUpdateSetup = () => {
 	autoUpdater.on('update-downloaded', (event, releaseNotes, releaseName) => {
 		const dialogOpts = {
@@ -389,7 +390,8 @@ const autoUpdateSetup = () => {
 		};
 
 		dialog.showMessageBox(dialogOpts).then((returnValue) => {
-			if (returnValue.response === 0) autoUpdater.quitAndInstall();
+			willUpdate = returnValue.response;
+			if (willUpdate === 0) autoUpdater.quitAndInstall();
 		});
 	});
 
