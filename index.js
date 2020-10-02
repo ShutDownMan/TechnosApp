@@ -1,4 +1,4 @@
-const { app, BrowserWindow, session, autoUpdater } = require('electron')
+const { app, BrowserWindow, session } = require('electron')
 const path = require('path')
 const dns = require('dns');
 const netList = require('network-list');
