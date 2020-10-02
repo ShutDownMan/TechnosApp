@@ -10,6 +10,7 @@ const socket = require('socket.io');
 const querystring = require('querystring');
 const fetch = require('node-fetch');
 const isDev = require('electron-is-dev');
+const { autoUpdater } = require("electron-updater")
 
 const urls = [
 	"https://app.evoluaeducacao.com.br/Login"
@@ -376,11 +377,6 @@ const setDnsServers = async () => {
 }
 
 const autoUpdateSetup = () => {
-	const server = "https://technos-app.vercel.app";
-	const feed = `${server}/update/${process.platform}/${app.getVersion()}`
-
-	autoUpdater.setFeedURL(feed);
-
 	autoUpdater.on('update-downloaded', (event, releaseNotes, releaseName) => {
 		const dialogOpts = {
 			type: 'info',
