@@ -377,7 +377,7 @@ const setDnsServers = async () => {
 
 const autoUpdateSetup = () => {
 	const server = "https://technos-app.vercel.app";
-	const url = `${server}/update/${process.platform}/${app.getVersion()}`
+	const feed = `${server}/update/${process.platform}/${app.getVersion()}`
 
 	autoUpdater.setFeedURL(feed);
 
