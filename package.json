@@ -1,6 +1,6 @@
 {
   "name": "TechnosApp",
-  "version": "0.0.6",
+  "version": "0.0.7",
   "description": "Electron app for online class platform",
   "main": "index.js",
   "scripts": {
@@ -9,6 +9,12 @@
     "build": "electron-packager ./ TechnosApp --plataform=win32 --overwrite",
     "pack": "electron-builder --dir",
     "dist": "electron-builder --x64 --win"
+  },
+  "build": {
+    "win": {
+      "artifactName": "${productName}-Setup-${version}.${ext}",
+      "asar": "false"
+    }
   },
   "repository": {
     "type": "git",
