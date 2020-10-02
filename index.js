@@ -315,6 +315,7 @@ const setupRequestListener = () => {
 const setupflashPlugin = () => {
 	// Specify flash path
 	let pluginName
+	let pluginPath
 	switch (process.platform) {
 		case 'win32':
 			pluginName = '\\build\\flash-files\\pepflashplayer.dll'
@@ -324,8 +325,14 @@ const setupflashPlugin = () => {
 			pluginName = '/flash-files/libpepflashplayer.so'
 			break
 	}
-	console.log(path.join(__dirname, pluginName));
-	app.commandLine.appendSwitch('ppapi-flash-path', path.join(__dirname, pluginName))
+	if(!isDev) {
+	    pluginPath = path.join(__dirname.replace('\\app.asar', ''), pluginName);
+	} else {
+		pluginPath = path.join(__dirname, pluginName);
+	}
+
+	console.log(pluginPath);
+	app.commandLine.appendSwitch('ppapi-flash-path', pluginPath)
 }
 
 const updateDnsServers = () => {
