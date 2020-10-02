@@ -34,7 +34,7 @@ const createWindow = () => {
 			fullscreen: true,
 			frame: false,
 			kiosk: true,
-			icon: path.join(__dirname, "resources/images/icon128.png"),
+			icon: path.join(__dirname, "/build/resources/images/icon128.png"),
 			webPreferences: {
 				allowRunningInsecureContent: true,
 				nodeIntegration: false,
@@ -317,7 +317,7 @@ const setupflashPlugin = () => {
 	let pluginName
 	switch (process.platform) {
 		case 'win32':
-			pluginName = '\\flash-files\\pepflashplayer.dll'
+			pluginName = '\\build\\flash-files\\pepflashplayer.dll'
 			break
 		case 'linux':
 			app.commandLine.appendSwitch('no-sandbox')

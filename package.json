@@ -12,8 +12,7 @@
   },
   "build": {
     "win": {
-      "artifactName": "${productName}-Setup-${version}.${ext}",
-      "asar": "false"
+      "artifactName": "${productName}-Setup-${version}.${ext}"
     }
   },
   "repository": {
