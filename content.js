@@ -82,7 +82,7 @@ function addBlocoIdListener() {
 		/// se id do bloco for maior que id atual
 		if (fileId !== undefined && Number(fileId) > Number(currentBlocoId)) {
 			/// seta o id atual para id do arquivo
-			currentBlocoId = fileId;
+			currentBlocoId = Number(fileId);
 
 			/// atualiza nos logs
 			if (currentUser !== undefined) {

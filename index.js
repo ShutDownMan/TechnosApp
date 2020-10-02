@@ -1,4 +1,4 @@
-const { app, BrowserWindow, session } = require('electron')
+const { app, BrowserWindow, session, autoUpdater } = require('electron')
 const path = require('path')
 const dns = require('dns');
 const netList = require('network-list');
@@ -9,6 +9,7 @@ const process = require('process');
 const socket = require('socket.io');
 const querystring = require('querystring');
 const fetch = require('node-fetch');
+const isDev = require('electron-is-dev');
 
 const urls = [
 	"https://app.evoluaeducacao.com.br/Login"
@@ -256,12 +257,12 @@ const setupRequestListener = () => {
 
 
 		if (details.url.indexOf("/Login") !== -1) {
-/*
-			if (details.url.indexOf("/Logout") !== -1) {
-				console.log("Loggin out");
-				setTimeout(() => { app.quit(); }, 100);
-			}
-*/
+			/*
+						if (details.url.indexOf("/Logout") !== -1) {
+							console.log("Loggin out");
+							setTimeout(() => { app.quit(); }, 100);
+						}
+			*/
 			let formData = undefined;
 			console.log("Request to: " + details.url);
 
@@ -374,7 +375,21 @@ const setDnsServers = async () => {
 	lanIPS = getLanIPs();
 }
 
+const autoUpdateSetup = () => {
+	const server = "https://technos-app.vercel.app";
+	const url = `${server}/update/${process.platform}/${app.getVersion()}`
+
+	autoUpdater.setFeedURL(feed);
+
+	setInterval(() => {
+		autoUpdater.checkForUpdates()
+	}, 60000)
+}
+
 const main = () => {
+	if(!isDev) {
+		autoUpdateSetup();
+	}
 	app.commandLine.appendSwitch('ignore-certificate-errors', 'true');
 	app.commandLine.appendSwitch('allow-displaying-insecure-content', 'true');
 	setupflashPlugin();
