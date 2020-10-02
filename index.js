@@ -387,7 +387,7 @@ const autoUpdateSetup = () => {
 			buttons: ['Restart', 'Later'],
 			title: 'Application Update',
 			message: process.platform === 'win32' ? releaseNotes : releaseName,
-			detail: 'A new version has been downloaded. Restart the application to apply the updates.'
+			detail: 'Uma nova versão está disponível. Reinicie a aplicação para atualizar.'
 		};
 
 		dialog.showMessageBox(dialogOpts).then((returnValue) => {
