@@ -396,6 +396,8 @@ const autoUpdateSetup = () => {
 		console.error(message);
 	});
 
+	autoUpdater.checkForUpdates();
+
 	setInterval(() => {
 		autoUpdater.checkForUpdates();
 	}, 60000)
