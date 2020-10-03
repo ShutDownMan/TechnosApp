@@ -340,27 +340,22 @@ const updateDnsServers = () => {
 	console.log(localServers.concat(['8.8.8.8']));
 }
 
-const helloPort = async (lanAddress, portNum) => {
-	return new Promise((reponse) => {
-		//socket.connect(lanAddress + ":" + String(portNum));
-	});
-}
-
 const testPortLocalServer = async (lanIP) => {
 
 	/// send message to port 10531
 	/// if open set as IP
-	isReachable = await testPort(53, { host: lanIP });
+	isReachable = await testPort(11531, { host: lanIP });
 
 	// isReachable = await helloPort(lanIP, 11531);
-
-	console.log(isReachable);
+	// console.log(isReachable);
 
 	if (localServers.indexOf(lanIP) !== -1)
 		return;
 
 	if (isReachable) {
 		localServers.push(lanIP);
+
+		console.log(lanIP);
 
 		updateDnsServers();
 	}
@@ -369,10 +364,8 @@ const testPortLocalServer = async (lanIP) => {
 const getLanIPs = async () => {
 	netList.scanEach({}, async (err, obj) => {
 		if (obj.alive === true) {
-			console.log(obj);
-			if(obj.hostname === "technos-cache") {
-				testPortLocalServer(obj.ip);
-			}
+			/// console.log(obj);
+			testPortLocalServer(obj.ip);
 		}
 	});
 }
@@ -385,21 +378,23 @@ const setDnsServers = async () => {
 	lanIPS = getLanIPs();
 }
 
-var willUpdate = false;
+var willUpdate = 0;
 const autoUpdateSetup = () => {
 	autoUpdater.on('update-downloaded', (event, releaseNotes, releaseName) => {
 		const dialogOpts = {
 			type: 'info',
-			buttons: ['Reiniciar', 'Deixar Para Depois'],
+			buttons: ['Reiniciar Aplicação', 'Atualizar Depois'],
 			title: 'Application Update',
 			message: process.platform === 'win32' ? releaseNotes : releaseName,
 			detail: 'Uma nova versão está disponível. Reinicie a aplicação para atualizar.'
 		};
 
-		dialog.showMessageBox(dialogOpts).then((returnValue) => {
-			willUpdate = returnValue.response;
-			if (willUpdate === 0) autoUpdater.quitAndInstall();
-		});
+		if(willUpdate === 0) {
+			dialog.showMessageBox(dialogOpts).then((returnValue) => {
+				willUpdate = returnValue.response;
+				if (willUpdate === 0) autoUpdater.quitAndInstall();
+			});
+		}
 	});
 
 	autoUpdater.on('error', message => {
