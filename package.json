@@ -1,6 +1,6 @@
 {
 	"name": "TechnosApp",
-	"version": "0.0.8",
+	"version": "0.0.9",
 	"description": "Electron app for online class platform",
 	"main": "index.js",
 	"scripts": {

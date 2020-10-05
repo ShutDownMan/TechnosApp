@@ -88,6 +88,11 @@ const setupListeners = () => {
 		// win.webContents.send('bloco-id-update', "test");
 	});
 
+	win.webContents.on('new-window', (event, url) => {
+		event.preventDefault();
+		// win.loadURL(url)
+	})
+
 	ipcMain.on('user-login', (event, user) => {
 		if (user === undefined || Object.keys(user).length === 0 && user.constructor === Object) {
 			return false;
@@ -322,7 +327,7 @@ const setupflashPlugin = () => {
 			break
 		case 'linux':
 			app.commandLine.appendSwitch('no-sandbox')
-			pluginName = '/flash-files/libpepflashplayer.so'
+			pluginName = '/build/flash-files/libpepflashplayer.so'
 			break
 	}
 	if(!isDev) {
