@@ -384,7 +384,13 @@ const setDnsServers = async () => {
 }
 
 var willUpdate = 0;
+var foundUpdate = false;
 const autoUpdateSetup = () => {
+
+	autoUpdater.on('update-available', () => {
+		foundUpdate = true;
+	});
+
 	autoUpdater.on('update-downloaded', (event, releaseNotes, releaseName) => {
 		const dialogOpts = {
 			type: 'info',
@@ -410,7 +416,8 @@ const autoUpdateSetup = () => {
 	autoUpdater.checkForUpdates();
 
 	setInterval(() => {
-		autoUpdater.checkForUpdates();
+		if(foundUpdate === false)
+			autoUpdater.checkForUpdates();
 	}, 60000)
 }
 
