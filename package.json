@@ -1,6 +1,6 @@
 {
 	"name": "TechnosApp",
-	"version": "0.0.9",
+	"version": "0.0.10",
 	"description": "Electron app for online class platform",
 	"main": "index.js",
 	"scripts": {
@@ -16,7 +16,8 @@
 		"win": {
 			"artifactName": "${productName}-Setup-${version}.${ext}",
 			"extraResources": [
-				"build\\flash-files\\pepflashplayer.dll"
+				"build\\flash-files\\pepflashplayer_x64.dll",
+				"build\\flash-files\\pepflashplayer_ia32.dll"
 			]
 		}
 	},
@@ -42,7 +43,6 @@
 	"dependencies": {
 		"electron-is-dev": "^1.2.0",
 		"electron-json-storage": "^4.2.0",
-		"electron-updater": "^4.3.5",
 		"is-port-reachable": "^3.0.0",
 		"network-list": "^1.1.5",
 		"node-fetch": "^2.6.1",

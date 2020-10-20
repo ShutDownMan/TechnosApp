@@ -323,7 +323,7 @@ const setupflashPlugin = () => {
 	let pluginPath
 	switch (process.platform) {
 		case 'win32':
-			pluginName = '\\build\\flash-files\\pepflashplayer.dll'
+			pluginName = `\\build\\flash-files\\pepflashplayer_${process.arch}.dll`
 			break
 		case 'linux':
 			app.commandLine.appendSwitch('no-sandbox')
