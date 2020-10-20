@@ -43,6 +43,7 @@
 	"dependencies": {
 		"electron-is-dev": "^1.2.0",
 		"electron-json-storage": "^4.2.0",
+		"electron-updater": "^4.3.5",
 		"is-port-reachable": "^3.0.0",
 		"network-list": "^1.1.5",
 		"node-fetch": "^2.6.1",
