@@ -152,6 +152,10 @@ const setupListeners = () => {
 		reloadFix = true;
 		console.log(currentUser);
 	});
+
+	ipcMain.on('quitApp', (event) => {
+		app.quit();
+	})
 }
 
 const updateUser = (user) => {
@@ -444,8 +448,8 @@ const main = () => {
 		app.on('second-instance', (event, commandLine, workingDirectory) => {
 			// Someone tried to run a second instance, we should focus our window.
 			if (win) {
-				if (win.isMinimized()) win.restore()
-				win.focus()
+				if (win.isMinimized()) win.restore();
+				win.focus();
 			}
 		})
 

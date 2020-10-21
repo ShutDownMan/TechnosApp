@@ -1,6 +1,7 @@
 console.log("content script started...");
 
 const ipcRenderer = require('electron').ipcRenderer;
+const { ipcMain } = require('electron/main');
 const process = require('process');
 
 var currentUser = undefined;
@@ -213,6 +214,42 @@ function updateFechaModal() {
 	}
 }
 
+function fecharApp() {
+	ipcRenderer.send('quitApp');
+}
+
+function addFecharBtn() {
+	let loginBtn = $('.btn.btn-success.btn-login.btn-padrao');
+	let divElem = document.createElement('div');
+	let fecharBtn = document.createElement('btn');
+	var style = document.createElement('style');
+
+	style.setAttribute('type', 'text/css');
+	style.innerHTML = '.btn-padrao-fechar {\
+		min-width: 150px;\
+		padding: 7px 45px;\
+		border-radius: 100px;\
+		text-transform: uppercase;\
+	}\
+	.btn-success-fechar {\
+		color: #fff;\
+		background-color: #f00;\
+		border-color: #f00;\
+	}';
+
+	(document.body || document.head).appendChild(style);
+
+	divElem.setAttribute('class', 'd-flex justify-content-center');
+
+	fecharBtn.setAttribute('class', 'btn btn-success-fechar btn-login btn-padrao-fechar');
+	fecharBtn.innerText  = 'fechar';
+
+	fecharBtn.addEventListener('click', () => {fecharApp();})
+
+	loginBtn.parents()[2].appendChild(divElem);
+	divElem.appendChild(fecharBtn);
+}
+
 function runUserLoginScript() {
 
 	/// coloca uma funcao no botao de executar atividade
@@ -299,6 +336,10 @@ setupListenersFrame();
 
 function onPageLoad() {
 	setupListenersMain();
+
+	if (location.href.indexOf("evoluaeducacao.com.br/Login") !== -1) {
+		addFecharBtn();
+	}
 
 	if (location.href.indexOf("evoluaeducacao.com.br/Cursos/") !== -1) {
 		runUserLoginScript();
