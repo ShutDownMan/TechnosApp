@@ -1,0 +1,28 @@
+.btn-fechar {
+    color: #fff;
+    background: red;
+    min-width: 150px;
+    padding: 7px 45px;
+    border-radius: 100px;
+    text-transform: uppercase;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.24);
+    transition: all 0.3s cubic-bezier(.25,.8,.25,1);
+    color: #fff;
+    background-color: #28a745;
+    border-color: #28a745;
+}
+
+.btn-login
+
+.btn-padrao-fechar {
+    min-width: 150px;
+    padding: 7px 45px;
+    border-radius: 100px;
+    text-transform: uppercase;
+}
+
+.btn-success-fechar {
+    color: #fff;
+    background-color: #f00;
+    border-color: #f00;
+}

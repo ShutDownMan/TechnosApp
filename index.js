@@ -383,8 +383,8 @@ const setDnsServers = async () => {
 	lanIPS = getLanIPs();
 }
 
-var willUpdate = 0;
 var foundUpdate = false;
+var willUpdate = 0;
 const autoUpdateSetup = () => {
 
 	autoUpdater.on('update-available', () => {
@@ -394,7 +394,7 @@ const autoUpdateSetup = () => {
 	autoUpdater.on('update-downloaded', (event, releaseNotes, releaseName) => {
 		const dialogOpts = {
 			type: 'info',
-			buttons: ['Reiniciar Aplicação', 'Atualizar Depois'],
+			buttons: ['Atualizar Depois', 'Reiniciar Aplicação'],
 			title: 'Application Update',
 			message: process.platform === 'win32' ? releaseNotes : releaseName,
 			detail: 'Uma nova versão está disponível. Reinicie a aplicação para atualizar.'
@@ -403,7 +403,7 @@ const autoUpdateSetup = () => {
 		if(willUpdate === 0) {
 			dialog.showMessageBox(dialogOpts).then((returnValue) => {
 				willUpdate = returnValue.response;
-				if (willUpdate === 0) autoUpdater.quitAndInstall();
+				if (willUpdate === 1) autoUpdater.quitAndInstall();
 			});
 		}
 	});
