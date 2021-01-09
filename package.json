@@ -1,6 +1,6 @@
 {
 	"name": "TechnosApp",
-	"version": "0.0.10",
+	"version": "0.1.0",
 	"description": "Electron app for online class platform",
 	"main": "index.js",
 	"scripts": {
@@ -14,11 +14,7 @@
 	},
 	"build": {
 		"win": {
-			"artifactName": "${productName}-Setup-${version}.${ext}",
-			"extraResources": [
-				"build\\flash-files\\pepflashplayer_x64.dll",
-				"build\\flash-files\\pepflashplayer_ia32.dll"
-			]
+			"artifactName": "${productName}-Setup-${version}.${ext}"
 		}
 	},
 	"repository": {
