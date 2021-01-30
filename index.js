@@ -52,6 +52,73 @@ const createWindow = () => {
 	}, 0);
 }
 
+const setupRequestListener = () => {
+	// Modify the requesst for all requests to the following urls.
+	const filter = {
+		urls: ['*://*/*']
+	}
+
+	/// add listener to requests
+	session.defaultSession.webRequest.onBeforeRequest(filter, (details, callback) => {
+		// console.log("Request to: " + details.url);
+
+		if (details.url.toLowerCase().indexOf("evolua") !== -1 && details.url.toLowerCase().indexOf("logo") !== -1 && details.url.indexOf(".png") !== -1 && details.url.indexOf("technos") === -1) {
+			callback({ cancel: false, redirectURL: "https://technos-cursos.s3-sa-east-1.amazonaws.com/technos_logo.png" });
+			return;
+		}
+
+		// if (details.url.indexOf("cdn77.org") !== -1) {
+		// 	if (details.url.indexOf("https://") !== -1) {
+		// 		console.log("Downgraded: " + details.url);
+		// 		callback({ cancel: false, redirectURL: details.url.replace("https://", "http://") });
+		// 		return;
+		// 	}
+		// }
+
+		callback({ cancel: false });
+		return;
+	});
+
+}
+
+var foundUpdate = false;
+var willUpdate = 0;
+const autoUpdateSetup = () => {
+
+	autoUpdater.on('update-available', () => {
+		foundUpdate = true;
+	});
+
+	autoUpdater.on('update-downloaded', (event, releaseNotes, releaseName) => {
+		const dialogOpts = {
+			type: 'info',
+			buttons: ['Atualizar Depois', 'Reiniciar Aplicação'],
+			title: 'Application Update',
+			message: process.platform === 'win32' ? releaseNotes : releaseName,
+			detail: 'Uma nova versão está disponível. Reinicie a aplicação para atualizar.'
+		};
+
+		if(willUpdate === 0) {
+			dialog.showMessageBox(dialogOpts).then((returnValue) => {
+				willUpdate = returnValue.response;
+				if (willUpdate === 1) autoUpdater.quitAndInstall();
+			});
+		}
+	});
+
+	autoUpdater.on('error', message => {
+		console.error('There was a problem updating the application');
+		console.error(message);
+	});
+
+	autoUpdater.checkForUpdates();
+
+	setInterval(() => {
+		if(foundUpdate === false)
+			autoUpdater.checkForUpdates();
+	}, 60000)
+}
+
 const main = () => {
 	if (!isDev) {
 		autoUpdateSetup();
@@ -73,19 +140,9 @@ const main = () => {
 
 		app.on('ready', () => {
 			createWindow();
+			setupRequestListener();
 		});
 	}
 
 }
 main();
-
-// (function () {
-// 	let io;
-// 	io = require('socket.io').listen(11531);
-// 	io.sockets.on('connection', function (socket) {
-// 		socket.on('hello', function (data) {
-// 			process.stdout.write("hello: ");
-// 		});
-
-// 	});
-// }).call(this);
